@@ -1,17 +1,14 @@
+"""
+some implement of twitter timeline api
+Gestalt Lur
+2013-05-29
+"""
 import httplib
 import os
 
-from obtain_oauth import obtain_bearer_token 
+from obtain_oauth import get_access_token
+from obtain_oauth import get_oauth_header 
 from gzip_decode import gzip_decode
-
-def get_access_token():
-    _curpath = os.path.normpath( os.path.join( os.getcwd(), os.path.dirname(__file__) )  )
-    abs_path = os.path.join( _curpath, 'oauth_key.txt')
-    key_file = open( abs_path, 'rb' )
-    consumer_key = key_file.readline().replace( '\n', '' )
-    consumer_secret = key_file.readline().replace( '\n', '' )
-    key_file.close()
-    return obtain_bearer_token( consumer_key, consumer_secret ) 
 
 def get_tweets( user_name, cnt_num ):
 
@@ -47,6 +44,7 @@ def get_tweets( user_name, cnt_num ):
     
     return tweets_entites
 
+# get follower
 def get_follow_list( user_id=None, user_name=None, page=-1 ):
 
     access_token = get_access_token()
@@ -85,9 +83,8 @@ def get_follow_list( user_id=None, user_name=None, page=-1 ):
     return follower_entites
 
 # this function not use a bearer token but a token from dev.twitter.com
+# API : user/lookup
 def get_user(user_id=None, user_name=None ):
-
-    signature = get_signature()
 
     if ( user_id == None ) and ( user_name == None ):
         return "Must set either user_id or user_name"
@@ -100,12 +97,14 @@ def get_user(user_id=None, user_name=None ):
     else:
         url = '/1/users/lookup.json?user_id=' + str( user_id ) + '&include_entities=true'
 
+    oauth_header = get_oauth_header( "GET", host, url )
+
     connect = httplib.HTTPSConnection( host )
     #write headers
     connect.putrequest("GET", url )
     connect.putheader("Host", host )
     connect.putheader("User-Agent", "Scarlet Poppy Anarchistic")
-    connect.putheader("Authorization", signature )   
+    connect.putheader("Authorization", oauth_header )   
     #connect.putheader("Content-Type", "application/x-www-form-urlencoded;charset=UTF-8")
     #connect.putheader("Content-Length", "%d" % len( msg ))
     connect.putheader("Accept-Encoding", "gzip" )
