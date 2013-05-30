@@ -11,6 +11,7 @@ from obtain_oauth import get_access_token
 from obtain_oauth import get_oauth_header 
 from gzip_decode import gzip_decode
 
+# API : GET follower/list
 def get_tweets( user_name, cnt_num ):
 
     #read consumer_key and consumer_secret from oauth_key.txt
